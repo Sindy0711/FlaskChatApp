@@ -1,16 +1,100 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+import os
+from flask import Flask, request, render_template, redirect, url_for, session , flash
 from flask_socketio import SocketIO, join_room, leave_room, send
+from sqlalchemy import create_engine ,text
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 from utils import generate_room_code
 
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'SDKFJSDFOWEIOF'
-socketio = SocketIO(app)
+# from dotenv import load_dotenv
+# load_dotenv()
 
 
-rooms = {}
 
+# app = Flask(__name__)
+# app.config['SECRET_KEY'] = 'SDKFJSDFOWEIOF'
+# socketio = SocketIO(app)
+
+
+# rooms = {}
+
+# if not os.getenv("DATABASE_URL"):
+#     raise RuntimeError("DATABASE_URL is not set")
+
+
+# app.config['SESSION_PERMANENT'] = False
+# app.config["SESSION_TYPE"] = "filesystem"
+# Session(app)
+
+# engine = create_engine(os.getenv("DATABASE_URL"))
+# db = scoped_session(sessionmaker(bind=engine))
+
+# def login_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if session.get("email") is None:
+#             flash("You need to login to access this page." , "warning")
+#             return redirect(url_for("login"))
+#         return f(*args, **kwargs)
+#     return decorated_function
+
+
+# @app.route('/')
+# def index():
+#     if session.get("email") is not Null:
+#         return render_template()
+#     else:
+#         return render_template('home.html')
+# @app.route("/register", methods=["GET", "POST"])
+# def register():
+#     # if GET, show the registration form
+#     if request.method == "GET":
+#         return render_template("register.html")
+
+#     # if POST, validate and commit to database
+
+#     else:
+#         #if form values are empty show error
+#         if not request.form.get("first_name"):
+#             return render_template("error.html", message="Must provide First Name")
+#         elif not request.form.get("last_name"):
+#             return render_template("error.html", message="Must provide Last Name")
+#         elif  not request.form.get("email"):
+#             return render_template("error.html", message="Must provide E-mail")
+#         elif not request.form.get("password1") or not request.form.get("password2"):
+#             return render_template("error.html", message="Must provide password")
+#         elif request.form.get("password1") != request.form.get("password2"):
+#             return render_template("error.html", message="Password does not match")
+#         ## end validation
+#         else :
+#             ## assign to variables
+#             first_name = request.form.get("first_name")
+#             last_name = request.form.get("last_name")
+#             email = request.form.get("email")
+#             password = request.form.get("password1")
+#             # try to commit to database, raise error if any
+#             try:
+#                 db.execute(text("INSERT INTO users (firstname, lastname, email, password) VALUES (:firstname, :lastname, :email, :password)"
+#                             ),
+#                                {"firstname": first_name, "lastname": last_name, "email":email, "password": generate_password_hash(password)}        
+#                 )
+#             except Exception as e:
+#                 return render_template("error.html", message=e)
+            
+#             db.commit()
+            
+#             #success - redirect to login
+#             Q = db.execute(
+#                 text("SELECT * FROM users WHERE email LIKE :email"),
+#                 {"email": email},
+#             ).fetchone()
+#             print(Q.userid)
+#             # Remember which user has logged in
+#             session["user_id"] = Q.userid
+#             session["email"] = Q.email
+#             session["firstname"] = Q.firstname
+#             session["logged_in"] = True
+#             return redirect(url_for("home.html"))
 
 @app.route('/', methods=["GET", "POST"])
 def home():

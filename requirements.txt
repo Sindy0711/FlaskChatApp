@@ -1,0 +1,4 @@
+flask-socketio
+flask_session 
+python-dotenv
+SQLAlchemy
