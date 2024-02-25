@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+  Register
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="col-4"></div>
+      <div class="col-4">
+        <form action="/register" method="post" class="register-form">
+          <p class="title">Sign Up</p>
+          <p class="message">Signup now and get full access to our app.</p>
+          <div class="flex">
+            <label>
+              <span>First name</span>
+              <input class="form-control" name="first_name" type="text" placeholder="First" required="" />
+            </label>
+
+            <label>
+              <span>Last name</span>
+              <input class="form-control" name="last_name" type="text" placeholder="Last" required="" />
+            </label>
+          </div>
+
+          <label>
+            <span>E-mail</span>
+            <input class="form-control" name="email" type="email" placeholder="email@" required="" />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input class="form-control" name="password1" type="password" placeholder="******" required="" />
+          </label>
+          <label>
+            <span>Confirm password</span>
+            <input class="form-control" name="password2" type="password" placeholder="******" required="" />
+          </label>
+          <button class="submit" type="submit">Submit</button>
+          <p class="signin">
+            Already have an acount ? <a href="{{ url_for('login') }}">Signin</a>
+          </p>
+        </form>
+      </div>
+      <div class="col-4"></div>
+
+      <div class="col-6">
+        <!-- image -->
+      </div>
+    </div>
+  </div>
+{% endblock %}
