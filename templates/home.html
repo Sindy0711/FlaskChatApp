@@ -1,5 +1,6 @@
-{% extends 'layout.html' %} {% block content %}
-<div id="home-container">
+{% extends 'layout.html' %}
+{% block body %}
+<div class="container">
   <h1 id="home-header">Flask Chat 💬</h1>
 
   {% if error %}
@@ -8,11 +9,11 @@
 
   <form method="post" id="chat-widget-home">
     <div id="name-input">
-      <label for="name">Enter your name</label>
+      <label for="name" class="text-white">Enter your name</label>
       <input type="text" id="name" name="name" placeholder="Enter name" value="{{ name }}" />
     </div>
     <div>
-      <label for="code" id="code-label">Enter chat room code</label>
+      <label for="code" id="code-label" class="text-white">Enter chat room code</label>
       <input type="text" id="code" name="code" placeholder="Enter code" value="{{ code }}" />
       <button type="submit" id="join" name="join">Join</button>
     </div>

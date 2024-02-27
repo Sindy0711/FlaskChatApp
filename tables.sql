@@ -1,0 +1,14 @@
+CREATE TABLE Users (
+  UserID SERIAL PRIMARY KEY,
+  firstName VARCHAR NOT NULL,
+  lastName VARCHAR NOT NULL,
+  email VARCHAR UNIQUE NOT NULL,
+  password VARCHAR NOT NULL
+);
+
+CREATE TABLE rooms (
+    id SERIAL PRIMARY KEY, 
+    room_code VARCHAR(50) UNIQUE NOT NULL, 
+    members INTEGER DEFAULT 0
+);
+
