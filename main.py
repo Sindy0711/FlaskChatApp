@@ -80,7 +80,7 @@ def register():
         try:
             db.execute(text("INSERT INTO users (firstname, lastname, email, password) VALUES (:firstname, :lastname, :email, :password)"
                         ),
-                           {"firstname": first_name, "lastname": last_name, "email":email, "password": generate_password_hash(password)}        
+                        {"firstname": first_name, "lastname": last_name, "email":email, "password": generate_password_hash(password)}        
             )
         except Exception as e:
             return render_template("error.html", message=e)
@@ -143,41 +143,54 @@ def logout():
     # Redirect user to login index
     return redirect(url_for("index"))
 
-
 @app.route('/home', methods=["GET", "POST"])
 def home():
-
     if request.method != "POST":
         return render_template('home.html')
     name = request.form.get('name')
-    create = request.form.get('create', False)
     code = request.form.get('code')
-    join = request.form.get('join', False)
+    join = request.form.get('join')
+    create = request.form.get('create')
 
     if not name:
-        return render_template('home.html', error="Name is required", code=code)
+        return render_template('home.html', error="Name is required")
 
     if create != False:
+        # Tạo mã phòng mới và thêm vào cơ sở dữ liệu
         room_code = generate_room_code(6, list(rooms.keys()))
         new_room = {
             'members': 0,
             'messages': []
         }
         rooms[room_code] = new_room
+        try:
+            db.execute(text("INSERT INTO rooms (room_code, members, messages) VALUES (:room_code, :members, :messages)"),
+                    {"room_code": room_code, "members": 0, "messages": []})
+            db.commit()
+        except Exception as e:
+            return render_template("error.html", message=e)
 
-    if join != False:
-        # no code
+        session['room'] = room_code
+        session['name'] = name
+        return redirect(url_for('room'))
+
+    if join:
+        # Kiểm tra xem mã phòng có tồn tại trong cơ sở dữ liệu không
         if not code:
             return render_template('home.html', error="Please enter a room code to enter a chat room", name=name)
-        # invalid code
-        if code not in rooms:
-            return render_template('home.html', error="Room code invalid", name=name)
+        if room := db.execute(
+            text("SELECT * FROM rooms WHERE room_code LIKE :room_code"),
+            {"room_code": code},
+        ).fetchone():
+            # Lưu thông tin người dùng vào session và chuyển hướng đến route /room
+            session['room'] = code
+            session['name'] = name
+            return redirect(url_for('room'))
+        else:
+            return render_template('home.html', error="Room code invalid")
 
-        room_code = code
+    
 
-    session['room'] = room_code
-    session['name'] = name
-    return redirect(url_for('room'))
 
 
 @app.route('/room')
@@ -225,6 +238,14 @@ def handle_message(payload):
     send(message, to=room)
     rooms[room]["messages"].append(message)
 
+    # Cập nhật dữ liệu vào cơ sở dữ liệu
+    try:
+        db.execute(text("UPDATE rooms SET messages = :messages WHERE room_code = :room_code"),
+                {"messages": rooms[room]["messages"], "room_code": room})
+        db.commit()
+    except Exception as e:
+        print("Error updating messages to database:", e)
+
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -237,10 +258,13 @@ def handle_disconnect():
         if rooms[room]["members"] <= 0:
             del rooms[room]
 
-    send({
-        "message": f"{name} has left the chat",
-        "sender": ""
-    }, to=room)
+        # Xóa phòng ra khỏi cơ sở dữ liệu khi không còn ai trong phòng
+        try:
+            db.execute(text("DELETE FROM rooms WHERE room_code = :room_code"),
+                    {"room_code": room})
+            db.commit()
+        except Exception as e:
+            print("Error deleting room from database:", e)
 
 
 if __name__ == '__main__':

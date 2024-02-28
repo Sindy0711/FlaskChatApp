@@ -23,7 +23,7 @@
   <div>
     <nav class="navbar navbar-expand-lg">
       <div class="container">
-        <a class="navbar-brand" href="{{ url_for('index') }}"><img src="../static/book-high-resolution-logo.png"
+        <a class="navbar-brand" href="{{ url_for('index') }}"><img src="../static/"
             alt="Logo image" /></a>
         <button class="navbar-toggler justify-content-end" type="button" data-toggle="collapse"
           data-target=".navbar-collapse" aria-controls="navbarNav" aria-expanded="false"
@@ -32,7 +32,7 @@
           <ul class="navbar-nav ml-auto">
             {% if session.logged_in %}
             <li class="nav-item active">
-              <h6 class="color-default text-center">Welcome, {{session.firstname}}</h6>
+              <h6 class="color-default mt-2">Welcome, {{session.firstname}}</h6>
             </li>
 
             <li class="nav-item">
