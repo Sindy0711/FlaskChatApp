@@ -5,7 +5,7 @@ socketio.on("message", function (message) {
 })
 
 function createChatItem(message, sender) {
-    var messages = document.getElementById("message");
+    var messages = document.getElementById("messages");
     var content = "";
 
     if (sender === '') {

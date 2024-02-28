@@ -46,9 +46,7 @@ def login_required(f):
 
 @app.route('/')
 def index():
-    if session.get("email") is not None:
-        return redirect(url_for('home'))
-    else:
+        session.clear()
         return render_template('index.html')
 
 
@@ -238,7 +236,6 @@ def handle_message(payload):
     send(message, to=room)
     rooms[room]["messages"].append(message)
 
-    # Cập nhật dữ liệu vào cơ sở dữ liệu
     try:
         db.execute(text("UPDATE rooms SET messages = :messages WHERE room_code = :room_code"),
                 {"messages": rooms[room]["messages"], "room_code": room})
