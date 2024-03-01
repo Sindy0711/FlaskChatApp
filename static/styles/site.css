@@ -13,7 +13,6 @@ hr {
   margin: 20px 0;
 }
 
-
 #home-header {
   text-align: center;
   margin: 20px 0;
@@ -120,6 +119,7 @@ hr {
   text-decoration: none;
   padding: 6px;
   border: 2px solid rgb(226, 29, 29);
+  margin-bottom: 12px;
   display: inline-block;
   margin-top: 5px;
   border-radius: 10px;
@@ -132,16 +132,17 @@ hr {
 }
 
 #chat-room-widget {
-  height: 100%;
-  background-color: rgb(191, 237, 255);
-  border: 4px solid rgb(191, 237, 255);
-  border-radius: 15px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  width: 500px;
 }
 
 #msgs-container {
-  min-height: 600px;
-  background-color: rgb(191, 237, 255);
-  padding: 10px;
+  overflow-y: scroll;
+  height: 600px;
 }
 
 #msgs-container>ul {
@@ -149,38 +150,32 @@ hr {
 }
 
 #message-box {
-  bottom: 0;
-  width: 100%;
-  height: 50px;
-
   display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #ccc;
 }
 
 #message-input {
-  flex-grow: 1;
-  padding: 10px;
-  font-size: 1.1rem;
+  flex: 1;
+  border: none;
   outline: none;
-  border: 4px solid rgb(191, 237, 255);
-  border-right: none;
-  background-color: white;
-  border-bottom-left-radius: 15px;
+  padding: 5px;
+  font-size: 14px;
 }
 
 #send-btn {
-  padding: 0 20px;
-  font-size: 1.1rem;
-  border: 4px solid rgb(191, 237, 255);
-  border-left: none;
-  background-color: rgb(0, 100, 140);
-  color: white;
+  border: none;
+  outline: none;
+  background-color: #333;
+  color: #fff;
+  font-size: 14px;
+  padding: 5px 10px;
   cursor: pointer;
-  border-bottom-right-radius: 15px;
-  transition: all 0.1s ease-in;
 }
 
 #send-btn:hover {
-  background-color: rgb(46, 175, 225);
+  color: rgb(46, 175, 225);
 }
 
 .message-item {
@@ -222,7 +217,7 @@ hr {
 
 @media (min-width: 768px) {
   body {
-    background: url("../book-min.jpg") no-repeat center center fixed;
+    background: black;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -252,7 +247,8 @@ hr {
 }
 
 a.navbar-brand img {
-  width: 100px;
+  width: 50px;
+  height: 50px;
 }
 
 .login-form,
@@ -260,7 +256,6 @@ a.navbar-brand img {
 .list {
   margin-top: 20%;
 }
-
 
 .register-form,
 .login-form {
@@ -347,7 +342,6 @@ a.navbar-brand img {
   border-radius: 10px;
 }
 
-
 .register-form label .input+span {
   color: rgba(255, 255, 255, 0.5);
   position: absolute;
@@ -384,10 +378,6 @@ a.navbar-brand img {
   transform: .3s ease;
   background-color: #00bfff;
   width: 100%;
-  -webkit-border-radius:;
-  -moz-border-radius:;
-  -ms-border-radius:;
-  -o-border-radius:;
 }
 
 .submit:hover {
@@ -418,4 +408,92 @@ table.table.\.list {
 
 .card-text {
   font-style: italic;
+}
+
+.one-div {
+  position: relative;
+  height: 550px;
+  width: 500px;
+  background-color: rgb(15, 15, 15);
+  transform-style: preserve-3d;
+  animation: rot 2s infinite ease;
+  border-radius: 20px;
+  box-shadow: 0 0 50px 0px white, inset 0 0 50px 0px white;
+  transition: 1s;
+}
+
+.one-div::after {
+  content: 'F R I E N D';
+  font-size: 30px;
+  text-shadow: 5px 5px 1px black;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s;
+  color: white;
+}
+
+.one-div:hover.one-div::after {
+  font-size: 40px;
+}
+
+.one-div::before {
+  content: 'UNIVERSE';
+  color: white;
+  font-size: 25px;
+  letter-spacing: 7px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -20px;
+  left: 40px;
+  background-color: rgb(25, 25, 25);
+  width: 520px;
+  height: 570px;
+  transform: translateY(50px) translateZ(50px);
+  border-radius: 20px;
+  filter: blur(0px);
+  transition: 0.5s;
+  box-shadow: 0 0 5px 0px black, -3px -3px 10px 3px rgb(25, 25, 25), inset 0px 0px 40px -20px black;
+}
+
+.one-div:active.one-div::after {
+  text-shadow: 0 0 0 black;
+  transition: 0.5s;
+  transform: translateY(5px) translateZ(5px);
+}
+
+.one-div:hover.one-div::before {
+  font-size: 10px;
+  width: 550px;
+  height: 600px;
+  transform: translateZ(-50px) translateY(50px);
+  box-shadow: 0 0 5px 0px black, -3px -3px 10px 3px rgb(25, 25, 25), inset 0px 0px 40px -20px;
+}
+
+.one-div:hover {
+  height: 600px;
+  width: 550px;
+  box-shadow: 0 0 5px 0px black, inset -3px -3px 10px 3px rgb(25, 25, 25), inset 3px 3px 20px 3px black;
+  cursor: pointer;
+}
+
+@keyframes rot {
+  0% {
+    transform: rotateX(-15deg) translateY(0px);
+  }
+
+  50% {
+    transform: rotateX(-15deg) translateY(-10px);
+  }
+
+  100% {
+    transform: rotateX(-15deg) translateY(0px);
+  }
 }

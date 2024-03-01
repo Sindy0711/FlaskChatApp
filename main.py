@@ -6,6 +6,7 @@ from functools import wraps
 from sqlalchemy import create_engine ,text
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime, timedelta
 
 from utils import generate_room_code
 
@@ -42,6 +43,21 @@ def login_required(f):
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return decorated_function
+
+# def delete_old_rooms():
+#     # Lấy thời điểm hiện tại
+#     current_time = datetime.now()
+
+#     # Tính thời điểm 24 giờ trước
+#     time_threshold = current_time - timedelta(hours=24)
+
+#     # Xóa các phòng có thời điểm tạo trước time_threshold
+#     try:
+#         db.execute(text("DELETE FROM rooms WHERE created_at < :time_threshold"),
+#                     {"time_threshold": time_threshold})
+#         db.commit()
+#     except Exception as e:
+#         print("Error deleting old rooms:", e)
 
 
 @app.route('/')
@@ -137,7 +153,6 @@ def login():
 def logout():
     # Forget any user_id
     session.clear()
-
     # Redirect user to login index
     return redirect(url_for("index"))
 
@@ -164,6 +179,7 @@ def home():
         try:
             db.execute(text("INSERT INTO rooms (room_code, members, messages) VALUES (:room_code, :members, :messages)"),
                     {"room_code": room_code, "members": 0, "messages": []})
+
             db.commit()
         except Exception as e:
             return render_template("error.html", message=e)
@@ -171,6 +187,7 @@ def home():
         session['room'] = room_code
         session['name'] = name
         return redirect(url_for('room'))
+
 
     if join:
         # Kiểm tra xem mã phòng có tồn tại trong cơ sở dữ liệu không
@@ -265,4 +282,6 @@ def handle_disconnect():
 
 
 if __name__ == '__main__':
+    
+    # delete_old_rooms()
     socketio.run(app, debug=True)

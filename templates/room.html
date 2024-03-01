@@ -6,19 +6,18 @@
   <h1 id="home-header">Flask Chat</h1>
   <div id="room-subsection">
     <h2 id="room-code-display">Room Code: <span class="text-white">{{ room }}</span></h2>
-    <a href="/" id="leave-chat-btn">Leave the Chat</a>
   </div>
+  <a href="/" id="leave-chat-btn">Leave the Chat</a>
 
   <div id="chat-room-widget">
-    <div class="container">
-      <div id="msgs-container">
-        <ul id="messages"></ul>
-      </div>
+    
+    <div id="msgs-container">
+      <ul id="messages"></ul>
+    </div>
 
-      <div id="message-box">
-        <input type="text" placeholder="Enter your message" id="message-input" name="message" />
-        <button type="submit" id="send-btn" onclick="sendMessage()">Send</button>
-      </div>
+    <div id="message-box">
+      <input type="text" placeholder="Enter your message" id="message-input" name="message" />
+      <button type="submit" id="send-btn" onclick="sendMessage()">Send</button>
     </div>
   </div>
 </div>

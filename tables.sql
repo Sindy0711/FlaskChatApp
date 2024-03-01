@@ -7,8 +7,8 @@ CREATE TABLE Users (
 );
 
 CREATE TABLE rooms (
-    id SERIAL PRIMARY KEY,
-    room_code VARCHAR NOT NULL,
-    members INTEGER NOT NULL,
-    messages JSONB
+    room_code VARCHAR(255) PRIMARY KEY,
+    members INTEGER,
+    messages TEXT[],
+    -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
