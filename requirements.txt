@@ -1,5 +1,7 @@
+Flask
 flask-socketio
 flask_session 
+flask_sqlalchemy
 python-dotenv
 SQLAlchemy
 psycopg2-binary

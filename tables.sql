@@ -6,9 +6,16 @@ CREATE TABLE Users (
   password VARCHAR NOT NULL
 );
 
-CREATE TABLE rooms (
-    room_code VARCHAR(255) PRIMARY KEY,
-    members INTEGER,
-    messages TEXT[],
-    -- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE Room (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(6) UNIQUE NOT NULL,
+  members INTEGER DEFAULT 0,
+  FOREIGN KEY (room_id) REFERENCES Message(room_id)
+);
+
+CREATE TABLE Message (
+    id SERIAL PRIMARY KEY,
+    content VARCHAR(200),
+    room_id INTEGER NOT NULL,
+    FOREIGN KEY (room_id) REFERENCES Room(id)
 );
