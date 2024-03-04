@@ -1,17 +1,18 @@
+
 CREATE TABLE Users (
-  UserID SERIAL PRIMARY KEY,
-  firstName VARCHAR NOT NULL,
-  lastName VARCHAR NOT NULL,
+  id SERIAL PRIMARY KEY,
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
   email VARCHAR UNIQUE NOT NULL,
   password VARCHAR NOT NULL
 );
-
 CREATE TABLE Room (
   id SERIAL PRIMARY KEY,
   code VARCHAR(6) UNIQUE NOT NULL,
-  members INTEGER DEFAULT 0,
-  FOREIGN KEY (room_id) REFERENCES Message(room_id)
+  members INTEGER DEFAULT 0
 );
+
+
 
 CREATE TABLE Message (
     id SERIAL PRIMARY KEY,

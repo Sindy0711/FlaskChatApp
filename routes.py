@@ -4,7 +4,8 @@ from functools import wraps
 from sqlalchemy import text
 from utils import generate_room_code,login_required
 from main import app, socketio , db
-from models import db, User , Room
+from werkzeug.security import generate_password_hash, check_password_hash
+from models import  Users , Room , Message
 
 def login_required(f):
     @wraps(f)
@@ -45,30 +46,32 @@ def register():
         # try to commit to database, raise error if any
     
         #success - redirect to login
-        new_user = User(first_name=first_name, last_name=last_name, email=email)
+        new_user = Users(first_name=first_name, last_name=last_name, email=email)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
         flash('Đăng ký thành công, bạn có thể đăng nhập ngay bây giờ.', 'success')
         
-        return redirect(url_for('login'))
+        return redirect(url_for('home'))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
+    # session.clear()
     if request.method != "POST":
         return render_template("login.html")
+    
     form_email = request.form.get("email")
     form_password = request.form.get("password")
-    # Ensure username and password was submitted
-    user = User.query.filter_by(email=email).first()
-    if user and user.check_password(password):
+    
+    user = Users.query.filter_by(email=form_email).first()
+    if user and user.check_password(form_password):
         session['user_id'] = user.id
+        session['first_name'] = user.first_name
         flash('Đăng nhập thành công.', 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     else:
         flash('Email hoặc mật khẩu không đúng.', 'danger')
-        return redirect(url_for('login'))
+        return redirect(url_for('index'))
 
 
 @app.route("/logout")
@@ -95,11 +98,12 @@ def home():
         return render_template('home.html', error="Name is required", code=code)
 
     if create:
-        # Tạo mã phòng mới và thêm vào cơ sở dữ liệu
-        room = Room(name=code)  # Assuming 'code' is the room name
+        new_code = generate_room_code(6, [room.code for room in Room.query.all()])
+        room = Room(code=new_code)
         db.session.add(room)
         db.session.commit()
         flash('Room created successfully.', 'success')
+        return redirect(url_for('room', room_code=new_code))
 
     if join:
         if not code:
@@ -114,6 +118,7 @@ def home():
             db.session.add(new_join)
             db.session.commit()
             flash('Joined room successfully.', 'success')
+            
         else:
             flash('Room does not exist.', 'error')
 
@@ -125,23 +130,20 @@ def home():
 
 @app.route('/room')
 def room():
-    room = session.get('room')
-    name = session.get('name')
+    room_code = request.args.get('room_code')
+    name = request.args.get('name')
 
     if name is None or room is None:
         return redirect(url_for('home'))
 
     # Check if room exists in the database
-    db_room = db.execute(
-        text("SELECT * FROM rooms WHERE room_code = :room_code"),
-        {"room_code": room}
-    ).fetchone()
+    room = Room.query.filter_by(code=room_code).first()
 
-    if db_room is None:
+    if room is None:
         return redirect(url_for('home'))
 
-    messages = rooms.get(room, {}).get('messages', [])
-    return render_template('room.html', room=room, user=name, messages=messages)
+    messages = room.messages
+    return render_template('room.html', room=room_code, user=name, messages=messages)
 
 
 @socketio.on('connect')
@@ -164,25 +166,31 @@ def handle_connect():
 
 @socketio.on('message')
 def handle_message(payload):
-    room = session.get('room')
+    room_code = session.get('room')
     name = session.get('name')
 
-    if room not in rooms:
+    if not room_code:
+        print("No room code found in session")
         return
 
-    message = {
-        "sender": name,
-        "message": payload["message"]
-    }
-    send(message, to=room)
-    rooms[room]["messages"].append(message)
+    message_content = payload.get("message")
+    if message_content:
+        room = Room.query.filter_by(code=room_code).first()
+        if room :
+            message = Message(content=message_content, room_id=room.id)
+            db.session.add(message)
+            db.session.commit()
 
-    try:
-        db.execute(text("UPDATE rooms SET messages = :messages WHERE room_code = :room_code"),
-                {"messages": rooms[room]["messages"], "room_code": room})
-        db.commit()
-    except Exception as e:
-        print("Error updating messages to database:", e)
+            # Gửi tin nhắn mới đến tất cả các người dùng trong phòng
+            message_data = {
+                "sender": name,
+                "message": message_content
+            }
+            send(message_data, to=room_code)
+        else:
+            print(f"Room with code {room_code} does not exist")
+    else:
+        print("Empty message content received from client")
 
 
 @socketio.on('disconnect')

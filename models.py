@@ -1,13 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-import random
-from string import ascii_letters
-db = SQLAlchemy()
 
-class User(db.Model):
+from werkzeug.security import generate_password_hash, check_password_hash
+from main import db
+
+class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String, nullable=False)
-    last_name = db.Column(db.String, nullable=False)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     
@@ -19,18 +17,10 @@ class User(db.Model):
     
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(6), unique=True)
+    code = db.Column(db.String(6), unique=True, nullable=False)
     members = db.Column(db.Integer, default=0)
     messages = db.relationship('Message', backref='room', lazy=True)
     
-    @staticmethod
-    def generate_room_code(length: int, existing_codes: list[str]) -> str:
-        while True:
-            code_chars = [random.choice(ascii_letters) for _ in range(length)]
-            code = ''.join(code_chars)
-
-            if code not in existing_codes:
-                return code
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
