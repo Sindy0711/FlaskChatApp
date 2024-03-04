@@ -5,7 +5,7 @@ from sqlalchemy import text
 from utils import generate_room_code,login_required
 from main import app, socketio , db
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import  Users , Room , Message
+from models import  User , Room , Message , Join
 
 def login_required(f):
     @wraps(f)
@@ -18,7 +18,7 @@ def login_required(f):
 
 @app.route('/')
 def index():
-        return render_template('index.html')
+    return render_template('index.html')
 
 
 
@@ -26,69 +26,65 @@ def index():
 def register():
     if request.method == "GET":
         return render_template("register.html")
-    #if form values are empty show error
-    if not request.form.get("first_name"):
-        return render_template("error.html", message="Must provide First Name")
-    elif not request.form.get("last_name"):
-        return render_template("error.html", message="Must provide Last Name")
-    elif  not request.form.get("email"):
-        return render_template("error.html", message="Must provide E-mail")
-    elif not request.form.get("password1") or not request.form.get("password2"):
-        return render_template("error.html", message="Must provide password")
-    elif request.form.get("password1") != request.form.get("password2"):
-        return render_template("error.html", message="Password does not match")
-    else :
-        ## assign to variables
-        first_name = request.form.get("first_name")
-        last_name = request.form.get("last_name")
-        email = request.form.get("email")
-        password = request.form.get("password1")
-        # try to commit to database, raise error if any
     
-        #success - redirect to login
-        new_user = Users(first_name=first_name, last_name=last_name, email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Đăng ký thành công, bạn có thể đăng nhập ngay bây giờ.', 'success')
+    if not all(request.form.values()):
+        return render_template("error.html", message="All fields are required.")
+    ## assign to variables
+    if request.form.get("password1") != request.form.get("password2"):
+        return render_template("error.html", message="Passwords do not match.")
         
-        return redirect(url_for('home'))
+        
+    first_name = request.form.get("first_name")
+    last_name = request.form.get("last_name")
+    email = request.form.get("email")
+    password = request.form.get("password1")
+    
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        flash('Email already exists. Please use a different email.', 'error')
+        return render_template("register.html")
+
+    new_user = User(first_name=first_name, last_name=last_name, email=email)
+    new_user.set_password(password)
+    
+    db.session.add(new_user)
+    db.session.commit()
+    flash('Đăng ký thành công, bạn có thể đăng nhập ngay bây giờ.', 'success')
+    
+    return redirect(url_for('home'))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # session.clear()
-    if request.method != "POST":
-        return render_template("login.html")
-    
-    form_email = request.form.get("email")
-    form_password = request.form.get("password")
-    
-    user = Users.query.filter_by(email=form_email).first()
-    if user and user.check_password(form_password):
-        session['user_id'] = user.id
-        session['first_name'] = user.first_name
-        flash('Đăng nhập thành công.', 'success')
-        return redirect(url_for('home'))
-    else:
-        flash('Email hoặc mật khẩu không đúng.', 'danger')
-        return redirect(url_for('index'))
+    session.clear()
+    if request.method == "POST":
+        
+        email = request.form.get("email")
+        password = request.form.get("password")
 
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            session['user_id'] = user.id
+            session['first_name'] = user.first_name
+            session["email"] = user.email
+            session["logged_in"] = True
+            flash('Logged in successfully.', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid email or password.', 'danger')
+            return redirect(url_for('index'))
+    return render_template("login.html")
 
 @app.route("/logout")
 @login_required
 def logout():
-    # Forget any user_id
     session.clear()
     flash('You were successfully logged out')
-    # Redirect user to login index
     return redirect(url_for("index"))
 
 @app.route('/home', methods=["GET", "POST"])
 def home():
-    
     if request.method != "POST":
-        return render_template('home.html', code = "")
-    
+        return render_template('home.html')
     name = request.form.get('name')
     code = request.form.get('code')
     join = request.form.get('join', False)
@@ -97,7 +93,7 @@ def home():
     if not name:
         return render_template('home.html', error="Name is required", code=code)
 
-    if create:
+    if create != False:
         new_code = generate_room_code(6, [room.code for room in Room.query.all()])
         room = Room(code=new_code)
         db.session.add(room)
@@ -105,20 +101,19 @@ def home():
         flash('Room created successfully.', 'success')
         return redirect(url_for('room', room_code=new_code))
 
-    if join:
+    if join != False:
         if not code:
             return render_template('home.html', error="Please enter a room code to enter a chat room", name=name)
-        
-        # Kiểm tra xem phòng có tồn tại trong cơ sở dữ liệu hay không
-        room = Room.query.filter_by(code=code).first()
-        if room:
-            # Tạo một bản ghi mới cho người dùng trong phòng
-            # (Giả sử bạn có một bảng tham gia để lưu thông tin người dùng tham gia vào phòng)
+
+        if "user_id" not in session:
+            flash('You need to login to join a room.', 'error')
+            return redirect(url_for('login'))
+        if room := Room.query.filter_by(code=code).first():
             new_join = Join(user_id=session.get("user_id"), room_id=room.id)
             db.session.add(new_join)
             db.session.commit()
             flash('Joined room successfully.', 'success')
-            
+
         else:
             flash('Room does not exist.', 'error')
 
@@ -130,8 +125,8 @@ def home():
 
 @app.route('/room')
 def room():
-    room_code = request.args.get('room_code')
-    name = request.args.get('name')
+    room_code = session.get('room')
+    name = session.get('name')
 
     if name is None or room is None:
         return redirect(url_for('home'))
@@ -142,26 +137,26 @@ def room():
     if room is None:
         return redirect(url_for('home'))
 
-    messages = room.messages
+    messages = Message.query.filter_by(room_id=room.id).all()
     return render_template('room.html', room=room_code, user=name, messages=messages)
 
 
 @socketio.on('connect')
 def handle_connect():
-    room = session.get('room')
+    room_code = session.get('room')
     name = session.get('name')
 
-    if name is None or room is None:
+    if name is None or room_code is None:
         return
-    if room not in rooms:
-        leave_room(room)
+    if room_code not in rooms:
+        leave_room(room_code)
 
-    join_room(room)
+    join_room(room_code)
     send({
         "sender": "",
         "message": f"{name} has entered the chat"
-    }, to=room)
-    rooms[room]["members"] += 1
+    }, to=room_code)
+    rooms[room_code]["members"] += 1
 
 
 @socketio.on('message')
@@ -181,10 +176,9 @@ def handle_message(payload):
             db.session.add(message)
             db.session.commit()
 
-            # Gửi tin nhắn mới đến tất cả các người dùng trong phòng
             message_data = {
                 "sender": name,
-                "message": message_content
+                "message": f"{name} has entered the chat"
             }
             send(message_data, to=room_code)
         else:

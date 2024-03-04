@@ -23,9 +23,8 @@ Session(app)
 
 
 
-from models import Users, Room, Message
+
 from routes import *
 
 if __name__ == '__main__':
-    
     socketio.run(app, debug=True)
