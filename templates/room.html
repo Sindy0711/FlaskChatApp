@@ -7,7 +7,7 @@
   <div id="room-subsection">
     <h2 id="room-code-display">Room Code: <span class="text-white">{{ room }}</span></h2>
   </div>
-  <a href="/" id="leave-chat-btn">Leave the Chat</a>
+  <a href="/home" id="leave-chat-btn">Leave the Chat</a>
 
   <div id="chat-room-widget">
     
@@ -25,7 +25,7 @@
 <script src=" {{ url_for('static', filename='chat.js' ) }}"></script>
 <script>
   var room = "{{ room }}";
-  var currentUser = "{{ session.get('name') }}";
+  var currentUser = "{{ session.get('first_name') }}";
 </script>
 
 {% endblock %}
