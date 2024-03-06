@@ -1,11 +1,17 @@
-var socketio = io()
+var socketio = io(); // Khởi tạo kết nối socketio
 
+// Thiết lập sự kiện trước khi cửa sổ trình duyệt được xóa
 window.onbeforeunload = function () {
+  // Tạo một kết nối socketio mới
   var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+  // Lấy mã phòng và tên người dùng từ session
   var roomCode = "{{ session.get('room') }}";
   var userName = "{{ session.get('name') }}";
 
+  // Kiểm tra nếu có mã phòng và tên người dùng
   if (roomCode && userName) {
+    // Gửi sự kiện 'disconnect' với dữ liệu là mã phòng và tên người dùng
     socket.emit('disconnect', { room_code: roomCode, name: userName });
   }
 };
@@ -48,34 +54,3 @@ function sendMessage() {
   msgInput.value = "";
 
 }
-
-// document.querySelectorAll('#join-room').forEach(button => {
-//   button.addEventListener('click', function (event) {
-//     event.preventDefault(); 
-
-//     var roomCode = button.dataset.roomCode; 
-
-  
-//     fetch('/home', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify({
-//         name: '{{ session.get("name") }}', 
-//         join: true, 
-//         code: roomCode 
-//       })
-//     })
-//     .then(response => {
-//       if (response.ok) {
-//         window.location.href = '/room'; 
-//       } else {
-//         console.error('Failed to join room:', response.statusText);
-//       }
-//     })
-//     .catch(error => {
-//       console.error('Error joining room:', error);
-//     });
-//   });
-// });
