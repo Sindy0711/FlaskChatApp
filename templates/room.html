@@ -1,31 +1,35 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-
-<div class="container">
-  <h1 id="home-header">Flask Chat</h1>
-  <div id="room-subsection">
-    <h2 id="room-code-display">Room Code: <span class="text-white">{{ room }}</span></h2>
-  </div>
-  <a href="/home" id="leave-chat-btn">Leave the Chat</a>
-
-  <div id="chat-room-widget">
-    
-    <div id="msgs-container">
-      <ul id="messages"></ul>
+  {% include 'flash_messages.html' %}
+  <div class="container">
+    <h1 id="home-header">Flask Chat</h1>
+    <div id="room-subsection">
+      <h2 id="room-code-display">Room Code: <span class="text-white">{{ room }}</span></h2>
     </div>
+    <a href="/home" id="leave-chat-btn">Leave the Chat</a>
 
-    <div id="message-box">
-      <input type="text" placeholder="Enter your message" id="message-input" name="message" />
-      <button type="submit" id="send-btn" onclick="sendMessage()">Send</button>
+    <div id="chat-room-widget">
+      
+      <div id="msgs-container">
+        <ul id="messages">
+          <!-- {% for message in messages %}
+          <li>{{ message.sender }}: {{ message.content }}</li>
+          {% endfor %} -->
+        </ul>
+      </div>
+
+      <div id="message-box">
+        <input type="text" placeholder="Enter your message" id="message-input" name="message" />
+        <button type="submit" id="send-btn" onclick="sendMessage()">Send</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script src=" {{ url_for('static', filename='chat.js' ) }}"></script>
-<script>
-  var room = "{{ room }}";
-  var currentUser = "{{ session.get('first_name') }}";
-</script>
+  <script src=" {{ url_for('static', filename='chat.js' ) }}"></script>
+  <script>
+    var room = "{{ room }}";
+    var currentUser = "{{ session.get('first_name') }}";
+  </script>
 
 {% endblock %}

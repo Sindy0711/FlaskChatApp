@@ -6,7 +6,7 @@
   {% if error %}
   <p id="error">{{ error }}</p>
   {% endif %}
-
+  {% include 'flash_messages.html' %}
   <form method="post" id="chat-widget-home">
     <div id="name-input">
       <label for="name" class="text-white">Enter your name</label>
@@ -19,6 +19,19 @@
     </div>
     <hr />
     <button type="submit" id="create" name="create">Create Room</button>
+    
+    <ul>
+      {% for room in rooms %}
+      <li class="text-white mt-3">
+        Room Code: {{ room.code }}
+        <form action="/home" method="post">
+          <input type="hidden" name="code"  value="{{ room.code }}">
+          <!-- <button type="submit" id="join-room" name="join-room">Join</button> -->
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
   </form>
 </div>
+<script src=" {{ url_for('static', filename='chat.js' ) }}"></script>
 {% endblock %}

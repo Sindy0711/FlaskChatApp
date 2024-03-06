@@ -113,17 +113,33 @@ def home():
 
             room = Room.query.filter_by(code=code).first()
             if room:
-                new_join = Join(user_id=session.get("user_id"), room_id=room.id)
-                db.session.add(new_join)
-                db.session.commit()
-                flash('Joined room successfully.', 'success')
-                session['room'] = code
-                session['name'] = first_name
-                return redirect(url_for('room'))
+                # Check if the user is already in the room
+                user_in_room = Join.query.filter_by(user_id=session.get("user_id"), room_id=room.id).first()
+                if not user_in_room:
+                    current_room_code = session.get('room')
+                    if current_room_code:
+                        current_room = Room.query.filter_by(code=current_room_code).first()
+                        if current_room:
+                            # Xóa người dùng khỏi phòng cũ
+                            join_to_delete = Join.query.filter_by(user_id=session.get("user_id"), room_id=current_room.id).first()
+                            if join_to_delete:
+                                db.session.delete(join_to_delete)
+                                db.session.commit()
+                                
+                    new_join = Join(user_id=session.get("user_id"), room_id=room.id)
+                    db.session.add(new_join)
+                    db.session.commit()
+                    flash('Joined room successfully.', 'success')
+                    session['room'] = code
+                    session['name'] = name
+                    return redirect(url_for('room'))
+                else:
+                    flash('You are already in this room.', 'error')
             else:
                 flash('Room does not exist.', 'error')
 
-    return render_template('home.html')
+    rooms = Room.query.all()
+    return render_template('home.html', rooms=rooms)
 
 
 
@@ -175,7 +191,7 @@ def handle_connect():
     }, to=room_code)
     
     num_members = Join.query.filter_by(room_id=room.id).count()
-    room.members = num_members  # Cập nhật số lượng thành viên vào phòng
+    room.members = num_members
     db.session.commit()
 
 
@@ -240,7 +256,6 @@ def handle_disconnect():
             print("Room still has members:", room_code)
     else:
         flash('Room does not exist.', 'error')
-    session.clear()
     flash('You were successfully logged out')
         
     return redirect(url_for('home'))

@@ -3,32 +3,32 @@
 {% block title %} Login {% endblock %}
 
 {% block body %}
-
-<div class="container">
-    <div class="row">
-        <div class="col-6">
-            <div class="login-form">
-                <h4 class="card-title mb-4 mt-1 title">Login</h4>
-                <form action="/login" method="post">
-                    <div class="form-group">
-                        <label>Your email</label>
-                        <input name="email" class="form-control" placeholder="Email" type="email" required>
-                    </div> <!-- form-group// -->
-                    <div class="form-group">
-                        <label>Your password</label>
-                        <input name="password" class="form-control" placeholder="******" type="password" required>
-                    </div> <!-- form-group// -->
-                    <div class="form-group">
-                    </div> <!-- form-group// -->
-                    <div class="form-group">
-                        <button type="submit" class="btn submit mt-3"> Login </button>
-                    </div> <!-- form-group// -->
-                    <p class="text-center mt-2"><a href="{{url_for("register")}}" class="">Don't have an account?</a>
-                    </p>
-                </form>
+    {% include 'flash_messages.html' %}
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <div class="login-form">
+                    <h4 class="card-title mb-4 mt-1 title">Login</h4>
+                    <form action="/login" method="post">
+                        <div class="form-group">
+                            <label>Your email</label>
+                            <input name="email" class="form-control" placeholder="Email" type="email" required>
+                        </div> <!-- form-group// -->
+                        <div class="form-group">
+                            <label>Your password</label>
+                            <input name="password" class="form-control" placeholder="******" type="password" required>
+                        </div> <!-- form-group// -->
+                        <div class="form-group">
+                        </div> <!-- form-group// -->
+                        <div class="form-group">
+                            <button type="submit" class="btn submit mt-3"> Login </button>
+                        </div> <!-- form-group// -->
+                        <p class="text-center mt-2"><a href="{{url_for("register")}}" class="">Don't have an account?</a>
+                        </p>
+                    </form>
+                </div>
             </div>
+            <div class="col-6"><!--image--></div>
         </div>
-        <div class="col-6"><!--image--></div>
     </div>
-</div>
 {% endblock %}
