@@ -259,5 +259,5 @@ def handle_disconnect():
     else:
         flash('Room does not exist.', 'error')  # Thông báo nếu không tìm thấy phòng
     flash('You were successfully logged out')  # Thông báo đăng xuất thành công
-    
+    session.clear()
     return redirect(url_for('home'))  # Chuyển hướng đến trang home
